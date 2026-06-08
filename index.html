@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OA // Morning Briefing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080a0e;
+    --surface: #0d1117;
+    --border: #1a2030;
+    --border-bright: #2a3a55;
+    --accent: #00d4ff;
+    --accent-dim: rgba(0, 212, 255, 0.08);
+    --accent-glow: rgba(0, 212, 255, 0.15);
+    --gold: #f0c040;
+    --gold-dim: rgba(240, 192, 64, 0.08);
+    --text: #e8edf5;
+    --text-muted: #5a6a80;
+    --text-dim: #8a9ab5;
+    --red: #ff4560;
+    --green: #00e676;
+    --spain: #c0392b;
+    --cat: #f39c12;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* SCAN LINE EFFECT */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -100%;
+    left: 0;
+    right: 0;
+    height: 200%;
+    background: linear-gradient(transparent 50%, rgba(0,0,0,0.025) 50%);
+    background-size: 100% 4px;
+    pointer-events: none;
+    z-index: 0;
+    animation: scanlines 8s linear infinite;
+  }
+
+  @keyframes scanlines {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(50%); }
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 48px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-left {}
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  .greeting {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    letter-spacing: 3px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .greeting span {
+    color: var(--accent);
+  }
+
+  .tagline {
+    margin-top: 8px;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .header-right {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  #clock {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text);
+    letter-spacing: 2px;
+  }
+
+  #date-display {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-top: 4px;
+    text-transform: uppercase;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--accent-glow); }
+    50% { opacity: 0.5; box-shadow: 0 0 0 6px transparent; }
+  }
+
+  #status-text { flex: 1; }
+
+  /* ── BRIEFING BUTTON ── */
+  .btn-briefing {
+    display: block;
+    width: 100%;
+    padding: 18px 32px;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 6px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    margin-bottom: 40px;
+  }
+
+  .btn-briefing::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent-dim);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-briefing:hover::before { transform: translateX(0); }
+  .btn-briefing:hover {
+    box-shadow: 0 0 30px var(--accent-glow), inset 0 0 30px var(--accent-glow);
+    letter-spacing: 8px;
+  }
+
+  .btn-briefing:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    letter-spacing: 6px;
+  }
+
+  /* ── API KEY SETUP ── */
+  .api-setup {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--gold);
+    padding: 28px;
+    margin-bottom: 40px;
+  }
+
+  .api-setup h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    margin-bottom: 12px;
+  }
+
+  .api-setup p {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+
+  .api-setup a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  .api-input-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .api-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .api-input:focus { border-color: var(--accent); }
+
+  .btn-save-key {
+    padding: 10px 20px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-save-key:hover { background: var(--accent); color: var(--bg); }
+
+  /* ── GRID ── */
+  .briefing-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .briefing-grid.visible { opacity: 1; }
+
+  /* block spanning full width for global */
+  .block-global { grid-column: 1 / -1; }
+
+  /* ── BLOCK ── */
+  .block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: blockIn 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes blockIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .block::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+
+  .block-global::before { background: var(--accent); }
+  .block-spain::before { background: var(--spain); }
+  .block-catalonia::before { background: var(--cat); }
+  .block-finance::before { background: var(--gold); }
+
+  .block-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .block-icon {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  .block-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 5px;
+    flex: 1;
+  }
+
+  .block-global .block-title { color: var(--accent); }
+  .block-spain .block-title { color: var(--spain); }
+  .block-catalonia .block-title { color: var(--cat); }
+  .block-finance .block-title { color: var(--gold); }
+
+  .block-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ── HEADLINES ── */
+  .headlines { display: flex; flex-direction: column; gap: 14px; }
+
+  .headline-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.02);
+    border-left: 2px solid transparent;
+    transition: all 0.2s;
+    cursor: default;
+  }
+
+  .block-global .headline-item:hover { border-left-color: var(--accent); background: var(--accent-dim); }
+  .block-spain .headline-item:hover { border-left-color: var(--spain); background: rgba(192,57,43,0.06); }
+  .block-catalonia .headline-item:hover { border-left-color: var(--cat); background: rgba(243,156,18,0.06); }
+  .block-finance .headline-item:hover { border-left-color: var(--gold); background: var(--gold-dim); }
+
+  .headline-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    padding-top: 2px;
+    flex-shrink: 0;
+    width: 16px;
+  }
+
+  .headline-content {}
+
+  .headline-title {
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .headline-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* finance tickers */
+  .tickers {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ticker {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    padding: 6px 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+
+  .ticker-name { color: var(--text-muted); margin-right: 6px; }
+  .ticker-val { color: var(--text); margin-right: 4px; }
+  .ticker-chg.up { color: var(--green); }
+  .ticker-chg.down { color: var(--red); }
+
+  /* loading skeleton */
+  .skeleton-lines { display: flex; flex-direction: column; gap: 10px; }
+
+  .skel {
+    height: 12px;
+    background: linear-gradient(90deg, var(--border) 25%, var(--border-bright) 50%, var(--border) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 2px;
+  }
+
+  .skel.short { width: 60%; }
+  .skel.med { width: 80%; }
+  .skel.long { width: 95%; }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-left {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+  }
+
+  .footer-right {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    .briefing-grid { grid-template-columns: 1fr; }
+    .block-global { grid-column: 1; }
+    header { flex-direction: column; gap: 16px; }
+    .header-right { text-align: left; }
+  }
+
+  /* corner decoration */
+  .corner-tl, .corner-br {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+  }
+
+  .corner-tl {
+    top: 8px; left: 8px;
+    border-top: 1px solid var(--border-bright);
+    border-left: 1px solid var(--border-bright);
+  }
+
+  .corner-br {
+    bottom: 8px; right: 8px;
+    border-bottom: 1px solid var(--border-bright);
+    border-right: 1px solid var(--border-bright);
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-left">
+      <div class="logo">OA INTELLIGENCE SYSTEM</div>
+      <div class="greeting">GOOD MORNING, <span>OT</span></div>
+      <div class="tagline">Daily Executive Briefing // Powered by AI</div>
+    </div>
+    <div class="header-right">
+      <div id="clock">--:--:--</div>
+      <div id="date-display">Loading date...</div>
+    </div>
+  </header>
+
+  <!-- API KEY SETUP -->
+  <div class="api-setup" id="api-setup">
+    <h3>// SYSTEM INITIALIZATION</h3>
+    <p>
+      Enter your Anthropic API key to activate the briefing system. Your key is stored only in your browser's local storage — never sent anywhere except directly to Anthropic.<br><br>
+      Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys.
+    </p>
+    <div class="api-input-row">
+      <input class="api-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." />
+      <button class="btn-save-key" onclick="saveKey()">SAVE & ACTIVATE</button>
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <div class="status-dot"></div>
+    <div id="status-text">SYSTEM READY — AWAITING BRIEFING REQUEST</div>
+  </div>
+
+  <!-- TRIGGER BUTTON -->
+  <button class="btn-briefing" id="btn-run" onclick="runBriefing()">
+    ⚡ &nbsp; INITIATE MORNING BRIEFING
+  </button>
+
+  <!-- BRIEFING GRID (hidden until populated) -->
+  <div class="briefing-grid" id="briefing-grid">
+
+    <!-- GLOBAL -->
+    <div class="block block-global" id="block-global" style="animation-delay:0.1s">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="block-header">
+        <span class="block-icon">🌍</span>
+        <span class="block-title">Global Headlines</span>
+        <span class="block-time" id="time-global"></span>
+      </div>
+      <div id="content-global"><div class="skeleton-lines"><div class="skel long"></div><div class="skel med"></div><div class="skel long"></div><div class="skel short"></div></div></div>
+    </div>
+
+    <!-- SPAIN -->
+    <div class="block block-spain" id="block-spain" style="animation-delay:0.2s">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="block-header">
+        <span class="block-icon">🇪🇸</span>
+        <span class="block-title">España</span>
+        <span class="block-time" id="time-spain"></span>
+      </div>
+      <div id="content-spain"><div class="skeleton-lines"><div class="skel long"></div><div class="skel med"></div><div class="skel long"></div></div></div>
+    </div>
+
+    <!-- CATALONIA -->
+    <div class="block block-catalonia" id="block-catalonia" style="animation-delay:0.3s">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="block-header">
+        <span class="block-icon">🏴󠁥󠁳󠁣󠁴󠁿</span>
+        <span class="block-title">Catalunya</span>
+        <span class="block-time" id="time-catalonia"></span>
+      </div>
+      <div id="content-catalonia"><div class="skeleton-lines"><div class="skel long"></div><div class="skel med"></div><div class="skel long"></div></div></div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="block block-finance" id="block-finance" style="animation-delay:0.4s; grid-column: 1/-1">
+      <div class="corner-tl"></div><div class="corner-br"></div>
+      <div class="block-header">
+        <span class="block-icon">📈</span>
+        <span class="block-title">Markets & Finance</span>
+        <span class="block-time" id="time-finance"></span>
+      </div>
+      <div id="content-finance"><div class="skeleton-lines"><div class="skel long"></div><div class="skel med"></div><div class="skel long"></div><div class="skel short"></div></div></div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-left">OA INTELLIGENCE SYSTEM v1.0 // BARCELONA</div>
+    <div class="footer-right" id="footer-timestamp"></div>
+  </footer>
+
+</div>
+
+<script>
+// ── CLOCK ──
+function updateClock() {
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
+  const dateStr = now.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }).toUpperCase();
+  document.getElementById('clock').textContent = timeStr;
+  document.getElementById('date-display').textContent = dateStr;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ── API KEY ──
+function saveKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  if (!val.startsWith('sk-')) {
+    setStatus('⚠ INVALID KEY FORMAT — must start with sk-ant-');
+    return;
+  }
+  localStorage.setItem('oa_api_key', val);
+  document.getElementById('api-setup').style.display = 'none';
+  setStatus('✓ API KEY SAVED — SYSTEM ACTIVATED');
+}
+
+function getKey() {
+  return localStorage.getItem('oa_api_key');
+}
+
+// On load — hide setup if key exists
+window.addEventListener('load', () => {
+  if (getKey()) {
+    document.getElementById('api-setup').style.display = 'none';
+    setStatus('✓ SYSTEM ACTIVATED — READY FOR BRIEFING');
+  }
+});
+
+// ── STATUS ──
+function setStatus(msg) {
+  document.getElementById('status-text').textContent = msg;
+}
+
+// ── RENDER HEADLINES ──
+function renderHeadlines(containerId, data) {
+  const el = document.getElementById(containerId);
+  if (!data || !data.headlines || data.headlines.length === 0) {
+    el.innerHTML = '<p style="color:var(--text-muted);font-size:12px;font-family:\'JetBrains Mono\',monospace;">No data available.</p>';
+    return;
+  }
+  let html = '<div class="headlines">';
+  data.headlines.forEach((h, i) => {
+    html += `
+      <div class="headline-item">
+        <span class="headline-num">${String(i+1).padStart(2,'0')}</span>
+        <div class="headline-content">
+          <div class="headline-title">${h.title}</div>
+          <div class="headline-source">${h.source || ''}</div>
+        </div>
+      </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+function renderFinance(data) {
+  const el = document.getElementById('content-finance');
+  if (!data) { el.innerHTML = '<p style="color:var(--text-muted);font-size:12px;">No data available.</p>'; return; }
+
+  let html = '';
+
+  // tickers
+  if (data.tickers && data.tickers.length > 0) {
+    html += '<div class="tickers">';
+    data.tickers.forEach(t => {
+      const isUp = t.change && !t.change.startsWith('-');
+      html += `<div class="ticker">
+        <span class="ticker-name">${t.name}</span>
+        <span class="ticker-val">${t.value || '—'}</span>
+        <span class="ticker-chg ${isUp ? 'up' : 'down'}">${t.change || ''}</span>
+      </div>`;
+    });
+    html += '</div>';
+  }
+
+  // headlines
+  if (data.headlines && data.headlines.length > 0) {
+    html += '<div class="headlines">';
+    data.headlines.forEach((h, i) => {
+      html += `
+        <div class="headline-item">
+          <span class="headline-num">${String(i+1).padStart(2,'0')}</span>
+          <div class="headline-content">
+            <div class="headline-title">${h.title}</div>
+            <div class="headline-source">${h.source || ''}</div>
+          </div>
+        </div>`;
+    });
+    html += '</div>';
+  }
+
+  el.innerHTML = html || '<p style="color:var(--text-muted);font-size:12px;">No data available.</p>';
+}
+
+// ── MAIN BRIEFING ──
+async function runBriefing() {
+  const key = getKey();
+  if (!key) {
+    document.getElementById('api-setup').style.display = 'block';
+    setStatus('⚠ API KEY REQUIRED — enter your key above');
+    return;
+  }
+
+  const btn = document.getElementById('btn-run');
+  btn.disabled = true;
+  btn.textContent = '⏳  FETCHING INTELLIGENCE...';
+
+  const grid = document.getElementById('briefing-grid');
+  grid.classList.add('visible');
+
+  const now = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  ['global','spain','catalonia','finance'].forEach(id => {
+    const el = document.getElementById(`time-${id}`);
+    if (el) el.textContent = now;
+    const content = document.getElementById(`content-${id}`);
+    if (content) content.innerHTML = '<div class="skeleton-lines"><div class="skel long"></div><div class="skel med"></div><div class="skel long"></div><div class="skel short"></div></div>';
+  });
+
+  const today = new Date().toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+
+  const prompt = `Today is ${today}. You are an intelligence briefing system for a CEO. Search the web and return TODAY's most important headlines across 4 categories. Return ONLY a valid JSON object, no markdown, no preamble.
+
+Format:
+{
+  "global": {
+    "headlines": [
+      {"title": "headline in English", "source": "Reuters / BBC / AP"},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."}
+    ]
+  },
+  "spain": {
+    "headlines": [
+      {"title": "titular en español", "source": "El País / El Mundo / El Confidencial"},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."}
+    ]
+  },
+  "catalonia": {
+    "headlines": [
+      {"title": "titular en català", "source": "La Vanguardia / Ara / El Nacional"},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."}
+    ]
+  },
+  "finance": {
+    "tickers": [
+      {"name": "S&P500", "value": "...", "change": "+x.xx%"},
+      {"name": "IBEX35", "value": "...", "change": "+x.xx%"},
+      {"name": "EUR/USD", "value": "...", "change": "+x.xx%"},
+      {"name": "BTC", "value": "...", "change": "+x.xx%"},
+      {"name": "OIL", "value": "...", "change": "+x.xx%"}
+    ],
+    "headlines": [
+      {"title": "finance headline in English", "source": "FT / Bloomberg / WSJ"},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."},
+      {"title": "...", "source": "..."}
+    ]
+  }
+}
+
+Use real, current headlines from today. For tickers use approximate current values. All global and finance headlines in English. Spain headlines in Spanish. Catalonia headlines in Catalan. Keep each headline concise but informative — one punchy line.`;
+
+  setStatus('◈ SCANNING GLOBAL INTELLIGENCE FEEDS...');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || `HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    // Extract text from response
+    let rawText = '';
+    for (const block of data.content) {
+      if (block.type === 'text') rawText += block.text;
+    }
+
+    // Parse JSON
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) throw new Error('Could not parse briefing data');
+    const briefing = JSON.parse(jsonMatch[0]);
+
+    // Render
+    renderHeadlines('content-global', briefing.global);
+    renderHeadlines('content-spain', briefing.spain);
+    renderHeadlines('content-catalonia', briefing.catalonia);
+    renderFinance(briefing.finance);
+
+    const ts = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    document.getElementById('footer-timestamp').textContent = `LAST UPDATED ${ts}`;
+    setStatus(`✓ BRIEFING COMPLETE — ${new Date().toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'})}`);
+    btn.textContent = '↻  REFRESH BRIEFING';
+
+  } catch (err) {
+    setStatus(`⚠ ERROR: ${err.message}`);
+    ['global','spain','catalonia','finance'].forEach(id => {
+      const el = document.getElementById(`content-${id}`);
+      if (el) el.innerHTML = `<p style="color:var(--red);font-size:12px;font-family:'JetBrains Mono',monospace;">Failed to load.</p>`;
+    });
+    btn.textContent = '↻  RETRY BRIEFING';
+  }
+
+  btn.disabled = false;
+}
+</script>
+</body>
+</html>
